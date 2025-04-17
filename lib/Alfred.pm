@@ -1,6 +1,6 @@
 package Alfred;
 
-use v5.38;
+use v5.40;
 use strict;
 use warnings;
 

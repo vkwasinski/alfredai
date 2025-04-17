@@ -1,10 +1,15 @@
 package Alfred::OllamaClient;
 
-use v5.38;
+use v5.40;
 use strict;
 use warnings;
+
 use feature 'class';
 use feature 'signatures';
+
+use FindBin qw/$Bin/;
+use lib "$Bin/../lib";
+
 use Alfred::HttpClient;
 use Alfred::Config;
 

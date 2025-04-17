@@ -1,10 +1,12 @@
 package Alfred::HttpClient;
 
-use v5.38;
+use v5.40;
 use strict;
 use warnings;
+
 use feature 'class';
 use feature 'signatures';
+
 use LWP::UserAgent;
 use JSON;
 use HTTP::Request;
