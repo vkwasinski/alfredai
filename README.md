@@ -4,7 +4,7 @@ Alfred is a sophisticated Perl-based AI assistant that leverages the Ollama API 
 
 ## Features
 
-- **Intelligent Memory System**: Stores and retrieves relevant past interactions
+- **Intelligent Memory System**: Stores and retrieves relevant past interactions using Qdrant vector database
 - **Context-Aware Responses**: Generates responses based on previous conversations
 - **Concept Extraction**: Automatically identifies key concepts from prompts
 - **Configurable**: Easy to customize through environment variables
@@ -14,6 +14,7 @@ Alfred is a sophisticated Perl-based AI assistant that leverages the Ollama API 
 
 - Perl 5.38 or higher
 - Ollama server running locally or accessible via network
+- Qdrant vector database (via Docker)
 - Required Perl modules (see Installation)
 
 ## Installation
@@ -29,7 +30,14 @@ cd alfred
 cpan install LWP::UserAgent JSON HTTP::Request Dotenv
 ```
 
-3. Configure your environment:
+3. Start Qdrant using Docker:
+```bash
+docker run -p 6333:6333 \
+    -v $(pwd)/qdrant_data:/qdrant/storage \
+    qdrant/qdrant
+```
+
+4. Configure your environment:
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
@@ -45,6 +53,13 @@ OLLAMA_DEFAULT_MODEL=llama2
 OLLAMA_TEMPERATURE=0.7
 OLLAMA_TOP_P=0.9
 OLLAMA_MAX_TOKENS=4096
+
+# Qdrant Configuration
+QDRANT_HOST=http://localhost
+QDRANT_PORT=6333
+QDRANT_COLLECTION=memories
+QDRANT_VECTOR_SIZE=384
+QDRANT_DISTANCE=Cosine
 ```
 
 ## Usage
@@ -66,7 +81,9 @@ alfred/
 │       ├── Config.pm      # Configuration management
 │       ├── HttpClient.pm  # HTTP client wrapper
 │       ├── MemoryService.pm # Memory and concept management
-│       └── OllamaClient.pm # Ollama API client
+│       ├── OllamaClient.pm # Ollama API client
+│       └── Qdrant/
+│           └── Client.pm  # Qdrant vector database client
 ├── .env                   # Environment configuration
 └── Makefile.PL           # Build configuration
 ```
@@ -74,10 +91,16 @@ alfred/
 ## Components
 
 ### MemoryService
-- Stores and retrieves conversation history
+- Stores and retrieves conversation history using Qdrant
 - Extracts key concepts from prompts
 - Calculates similarity between prompts
 - Provides context for new queries
+
+### Qdrant Client
+- Interfaces with Qdrant vector database
+- Manages vector storage and retrieval
+- Handles similarity searches
+- Configurable distance metrics
 
 ### OllamaClient
 - Interfaces with Ollama API
@@ -124,5 +147,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Acknowledgments
 
 - Ollama for providing the AI backend
+- Qdrant for vector database capabilities
 - Perl community for modern language features
 - Contributors and maintainers 
