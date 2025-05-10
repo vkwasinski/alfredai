@@ -1,8 +1,8 @@
-#!/usr/bin/env perl
+#!perl
 
 use v5.40;
-use strict;
 use warnings;
+use strict;
 
 use Data::Dumper;
 
@@ -22,8 +22,17 @@ no warnings 'experimental::class';
 no warnings 'experimental::try';
 no warnings 'experimental::signatures';
 
-my $ollama = Alfred::OllamaClient->new;
-my $memory = Alfred::MemoryService->new(ollama => $ollama);
+my $ollama = Alfred::OllamaClient->new(
+    config => Alfred::Config->new,
+    http_client => Alfred::HttpClient->new
+);
+my $qdrant = Qdrant::Client->new(
+    api_key => $ENV{QDRANT_API_KEY}
+);
+my $memory = Alfred::MemoryService->new(
+    ollama => $ollama,
+    qdrant => $qdrant
+);
 
 try 
 {

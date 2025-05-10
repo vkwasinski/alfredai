@@ -29,7 +29,7 @@ class Alfred::MemoryService
     field $vector_size = 384;  
     field $concept_threshold = 0.7;
 
-    field $DISTANCE :const = 'Cosine';
+    field $DISTANCE = 'Cosine';
 
     ADJUST 
     {
@@ -49,11 +49,19 @@ class Alfred::MemoryService
 
     method _init_collection 
     {
-        $qdrant->create_collection(
-            collection_name => $collection_name,
-            vector_size => $vector_size,
-            distance => $DISTANCE,
-        );
+        try 
+        {
+            $qdrant->create_collection(
+                collection_name => $collection_name,
+                vector_size => $vector_size,
+                distance => $DISTANCE,
+            );
+        }
+
+        catch ($e) 
+        {
+            croak $e if !$e =~ /already exists/;
+        }
     }
 
     method store_prompt($prompt, $response) 

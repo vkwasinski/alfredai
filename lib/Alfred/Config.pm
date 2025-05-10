@@ -10,7 +10,7 @@ use Dotenv -load;
 no warnings 'experimental::class';
 no warnings 'experimental::signatures';
 
-class Config 
+class Alfred::Config 
 {
     field $base_url = $ENV{OLLAMA_BASE_URL} // 'http://localhost:11434';
     field $default_model = $ENV{OLLAMA_DEFAULT_MODEL} // 'llama2';

@@ -7,9 +7,10 @@ use warnings;
 use feature 'class';
 use feature 'signatures';
 
+use Carp qw/carp/;
+
 use HTTP::Tiny;
 use JSON;
-use Carp qw/croak/;
 
 no warnings 'experimental::class';
 no warnings 'experimental::signatures';
@@ -56,7 +57,7 @@ It implements the HTTP client for interacting with Qdrant's REST API.
 
 =cut
 
-class Client 
+class Qdrant::Client 
 {
     field $host :param = 'http://localhost';
     field $port :param = 6333;
@@ -72,10 +73,10 @@ class Client
 
     method create_collection (%params) 
     {
-        croak 'collection_name is required'
+        carp "collection_name is required"
             if !$params{collection_name};
 
-        croak 'vector_size is required' 
+        carp "vector_size is required"
             if !$params{vector_size};
         
         my $payload = {
@@ -94,8 +95,11 @@ class Client
 
     method upsert_points (%params) 
     {
-        croak "collection_name is required" unless $params{collection_name};
-        croak "points is required" unless $params{points};
+        carp "collection_name is required"
+            if !$params{collection_name};
+
+        carp "points is required"
+            if !$params{points};
         
         return $self->_request(
             method => 'PUT',
@@ -106,8 +110,11 @@ class Client
 
     method search_points (%params) 
     {
-        croak "collection_name is required" unless $params{collection_name};
-        croak "vector is required" unless $params{vector};
+        carp "collection_name is required"
+            if !$params{collection_name};
+
+        carp "vector is required"
+            if !$params{vector};
         
         my $payload = {
             vector => $params{vector},
@@ -125,7 +132,8 @@ class Client
 
     method delete_collection (%params) 
     {
-        croak "collection_name is required" unless $params{collection_name};
+        carp "collection_name is required"
+            if !$params{collection_name};
         
         return $self->_request(
             method => 'DELETE',
@@ -154,7 +162,7 @@ class Client
         
         unless ($response->{success}) 
         {
-            croak sprintf(
+            carp sprintf(
                 "Qdrant request failed: %s - %s",
                 $response->{status},
                 $response->{content}

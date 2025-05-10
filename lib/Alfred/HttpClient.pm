@@ -14,7 +14,7 @@ use HTTP::Request;
 no warnings 'experimental::class';
 no warnings 'experimental::signatures';
 
-class HttpClient 
+class Alfred::HttpClient 
 {
     field $ua :param = LWP::UserAgent->new;
     field $json :param = JSON->new->utf8(1);

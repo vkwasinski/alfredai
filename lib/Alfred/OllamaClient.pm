@@ -16,11 +16,12 @@ use Alfred::Config;
 no warnings 'experimental::class';
 no warnings 'experimental::signatures';
 
-class OllamaClient 
+class Alfred::OllamaClient 
 {
     field $config :param = Alfred::Config->new;
     field $http_client :param = Alfred::HttpClient->new;
 
+     
     ADJUST 
     {
         $config = Alfred::Config->new unless $config;
