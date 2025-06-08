@@ -7,7 +7,7 @@ use warnings;
 use feature 'class';
 use feature 'signatures';
 
-use Carp qw/carp/;
+use Carp qw/carp croak/; # Added croak
 
 use HTTP::Tiny;
 use JSON;
@@ -90,6 +90,57 @@ class Qdrant::Client
             method => 'PUT',
             path   => "/collections/$params{collection_name}",
             data   => $payload
+        );
+    }
+
+    method delete_points (%params)
+    {
+        croak "collection_name is required for delete_points"
+            unless $params{collection_name};
+        croak "point_ids (array ref) is required for delete_points"
+            unless $params{point_ids} && ref $params{point_ids} eq 'ARRAY';
+        croak "point_ids array cannot be empty for delete_points"
+            unless @{$params{point_ids}};
+
+        return $self->_request(
+            method => 'POST',
+            path   => "/collections/$params{collection_name}/points/delete",
+            data   => { points => $params{point_ids} }
+        );
+    }
+
+    method list_points (%params)
+    {
+        croak "collection_name is required for list_points"
+            unless $params{collection_name};
+
+        my $payload = {
+            limit        => $params{limit} || 10,
+            with_payload => defined $params{with_payload} ? ($params{with_payload} ? \1 : \0) : \1, # JSON true/false
+            with_vector  => defined $params{with_vector}  ? ($params{with_vector}  ? \1 : \0) : \0, # JSON true/false
+        };
+        $payload->{offset} = $params{offset} if defined $params{offset}; # offset can be a point ID
+
+        # The scroll API returns an object like { result: { points: [], next_page_offset: "..." } }
+        # We are interested in the points array.
+        my $response = $self->_request(
+            method => 'POST',
+            path   => "/collections/$params{collection_name}/points/scroll",
+            data   => $payload
+        );
+
+        # Return the points array, or an empty list if points are not found
+        return $response->{result}{points} || [];
+    }
+
+    method get_collection_info (%params)
+    {
+        carp "collection_name is required"
+            if !$params{collection_name};
+
+        return $self->_request(
+            method => 'GET',
+            path   => "/collections/$params{collection_name}"
         );
     }
 
